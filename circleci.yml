@@ -1,0 +1,55 @@
+version: 2
+##### Declare defaults to be used in multiple jobs #####
+references:
+  java_defaults: &java_defaults
+      working_directory: ~/lessoria-backend
+      machine: 
+        image: ubuntu-2004:202010-01      
+      environment:
+        # Customize the JVM maximum heap limit
+        MAVEN_OPTS: -Xmx3200m
+jobs:
+  build:
+    <<: *java_defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: Lessoria-{{ checksum "build.gradle" }}
+      
+      - run:
+          name: Test and build
+          command: ./gradlew clean build
+      - save_cache:
+          paths:
+            - ~/.gradle/caches
+            - ~/.gradle/wrapper
+          key: lessoria-backend-{{ checksum "build.gradle" }}
+          when: always
+      
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/junit
+      - run:
+          name: Save gradle reports
+          command: |
+            mkdir -p ~/reports/
+            tar cf - build/reports | (cd ~/reports/; tar xf -)
+          when: always
+      - store_artifacts:
+          name: Store gradle reports
+          path: ~/reports
+      - deploy:
+          name: Push image to docker hub
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker build --build-arg JAR_FILE=build/libs/*.jar -t $DOCKER_USER/lessoria-backend:latest .
+              docker push $DOCKER_USER/lessoria-backend:latest
+            fi

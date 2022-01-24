@@ -1,0 +1,19 @@
+pool: 'ubuntu-20.4-DS2_v2-adopt-jdk'
+
+variables:
+- name: azureServiceConnection
+  value: test-iste-ish-eng-icm
+
+stages:
+- stage: Build
+  displayName: 'Gradle build and test, build & push Docker images and Helm charts to ACR'
+  jobs:
+  - job: Build
+    displayName: Build job
+    steps:
+    - task: Docker@2
+      displayName: Login to ACR
+      inputs:
+        command: login
+        containerRegistry: test-iste-acr
+    - template: azure/steps.build-and-test.gradle.yml
