@@ -1,6 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.8'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '3.1.2'
+    id 'io.spring.dependency-management' version '1.1.2'
     id 'java'
 
     // test coverage
@@ -10,8 +10,8 @@ plugins {
     id 'eclipse'
     id 'idea'
 
-    // code generation
-    id 'org.unbroken-dome.test-sets' version '4.0.0'
+    // integrationTests
+    id 'jvm-test-suite'
 }
 
 group = 'com.example'
@@ -29,8 +29,11 @@ repositories {
 }
 
 ext {
-    set('springCloudVersion', "2020.0.5")
-    jUnit5Version = '5.8.2'
+    set('springCloudVersion', "2022.0.3")
+
+    jsonPatchVersion = '1.13'
+
+    jUnit5Version = '5.9.3'
 }
 
 dependencyManagement {
@@ -39,21 +42,7 @@ dependencyManagement {
     }
 }
 
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestCompile.extendsFrom testCompile
-    integrationTestRuntime.extendsFrom testRuntime
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-    compile.dependencies.remove dependencies.gradleApi()
-    integrationTestAnnotationProcessor.extendsFrom annotationProcessor
-    integrationTestCompileOnly.extendsFrom integrationTestAnnotationProcessor
-}
-
 dependencies {
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-loadbalancer'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
 
     compileOnly 'org.projectlombok:lombok'
@@ -61,9 +50,15 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-loadbalancer'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
     implementation group: 'io.github.openfeign', name: 'feign-httpclient'
-    // shall fix invalid PATCH-method
     implementation group: 'io.github.openfeign', name: 'feign-okhttp'
+    implementation group: 'io.github.openfeign', name: 'feign-hc5'
+    implementation(group: "com.github.java-json-tools", name: "json-patch", version: "${jsonPatchVersion}");
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-circuitbreaker-resilience4j'
+
+    implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.2.1'
 
     testImplementation(platform("org.junit:junit-bom:${jUnit5Version}"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
@@ -75,15 +70,7 @@ dependencies {
 }
 
 apply from: 'gradle/ide.gradle'
-
-testSets {
-    integrationTest { dirName = 'integration-test' }
-}
-
-tasks.withType(Test){
-    useJUnitPlatform()   // use JUnit 5
-}
-
+apply from: 'gradle/testing.gradle'
 apply from: 'gradle/jacoco.gradle'
 
 check.dependsOn integrationTest
@@ -93,13 +80,3 @@ integrationTest.mustRunAfter test
 test {
     useJUnitPlatform()
 }
-
-testSets {
-    integrationTest { dirName = 'integration-test' }
-}
-
-apply from: 'gradle/jacoco.gradle'
-
-check.dependsOn integrationTest
-check.finalizedBy jacocoTestReport
-integrationTest.mustRunAfter test

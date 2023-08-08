@@ -1,11 +1,13 @@
 package org.test.openfeign;
 
+import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClient;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(value = "iste-artifact")
+@LoadBalancerClient(name = "iste-artifact")
 public interface ArtifactClient
 {
     String IS_VERSION_ALLOWED = "/isVersionAllowed";
