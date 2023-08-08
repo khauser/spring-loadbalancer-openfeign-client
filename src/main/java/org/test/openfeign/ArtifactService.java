@@ -28,9 +28,9 @@ public class ArtifactService
         return isteArtifactClient.isValid(artifact, version);
     }
 
-    // public String doRestRequest()
-    // {
-    // return isteArtifactClient.doRestRequest();
-    // }
+    public String isValidWithPatch(String artifact, String version)
+    {
+        return isteArtifactClient.isValidWithPatch(artifact, version);
+    }
 
 }

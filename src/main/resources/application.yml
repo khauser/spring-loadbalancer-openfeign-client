@@ -11,7 +11,7 @@ spring:
         simple:
           instances:
             iste-artifact:
-              - uri: http://localhost:2020
+              - uri: http://localhost:8080
                 serviceId: iste-artifact
 logging:
   level:

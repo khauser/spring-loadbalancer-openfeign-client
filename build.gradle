@@ -16,7 +16,7 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 configurations {
     compileOnly {
@@ -31,7 +31,6 @@ repositories {
 ext {
     set('springCloudVersion', "2020.0.5")
     jUnit5Version = '5.8.2'
-    testcontainersVersion = '1.16.3'
 }
 
 dependencyManagement {
@@ -56,10 +55,6 @@ dependencies {
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-loadbalancer'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
-
-    testImplementation("org.testcontainers:testcontainers:${testcontainersVersion}")
-    testImplementation("org.testcontainers:postgresql:${testcontainersVersion}")
-    testImplementation("org.testcontainers:junit-jupiter:${testcontainersVersion}")
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
