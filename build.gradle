@@ -61,6 +61,10 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    implementation group: 'io.github.openfeign', name: 'feign-httpclient'
+    // shall fix invalid PATCH-method
+    implementation group: 'io.github.openfeign', name: 'feign-okhttp'
+
     testImplementation(platform("org.junit:junit-bom:${jUnit5Version}"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
       because("Only needed to run tests in a version of IntelliJ IDEA that bundles older versions")
